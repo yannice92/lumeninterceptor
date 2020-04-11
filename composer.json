@@ -1,0 +1,26 @@
+{
+    "name": "yannice92/lumeninterceptor",
+    "description": "This library for write log using intercept request and response middleware",
+    "type": "library",
+    "require": {
+        "ext-json": "*",
+        "php": "^7.2",
+        "fzaninotto/faker": "^1.9",
+        "guzzlehttp/guzzle": "^6.5",
+        "http-interop/http-factory-guzzle": "^1.0",
+        "lcobucci/jwt": "^3.3",
+        "symfony/psr-http-message-bridge": "^2.0"
+    },
+    "authors": [
+        {
+            "name": "Fernando Yannice",
+            "email": "yannice92@gmail.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "autoload": {
+        "psr-4": {
+            "Yannice92\\LumenInterceptor\\": "src/"
+        }
+    }
+}
