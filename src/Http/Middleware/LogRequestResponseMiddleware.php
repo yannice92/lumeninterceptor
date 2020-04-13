@@ -28,15 +28,15 @@ class LogRequestResponseMiddleware
         );
         $response = $next($request);
         if ($request->hasHeader('X-Request-ID')) {
-            $data['trx_id'] = $request->header('X-Request-ID');
+            $data['correlation_id'] = $request->header('X-Request-ID');
         } else {
-            $data['trx_id'] = Uuid::uuid();
+            $data['correlation_id'] = Uuid::uuid();
         }
-        $response->header('X-Request-ID', $data['trx_id']);
+        $response->header('X-Request-ID', $data['correlation_id']);
         $psrServerRequest = $factory->createRequest($request);
         $psrServerResponse = $factory->createResponse($response);
-        $data['request'] = $this->str($psrServerRequest, $data['trx_id']);
-        $data['response'] = $this->str($psrServerResponse, $data['trx_id']);
+        $data['request'] = $this->str($psrServerRequest, $data['correlation_id']);
+        $data['response'] = $this->str($psrServerResponse, $data['correlation_id']);
         Log::info('', $data['request']);
         Log::info('', $data['response']);
         return $response;
@@ -48,7 +48,7 @@ class LogRequestResponseMiddleware
      */
     private function str(MessageInterface $message, $logId)
     {
-        $data['trx_id'] = $logId;
+        $data['correlation_id'] = $logId;
         if ($message instanceof RequestInterface) {
             $data['type'] = 'request';
             $data['method'] = $message->getMethod();
