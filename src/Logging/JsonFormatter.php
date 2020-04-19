@@ -1,10 +1,6 @@
 <?php
 
-
 namespace Yannice92\LumenInterceptor\Logging;
-
-
-use Symfony\Component\Form\Extension\Core\DataTransformer\DateTimeToStringTransformer;
 
 class JsonFormatter extends \Monolog\Formatter\JsonFormatter
 {
