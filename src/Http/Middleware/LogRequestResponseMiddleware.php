@@ -20,13 +20,16 @@ class LogRequestResponseMiddleware
 {
     public function handle(Request $request, Closure $next)
     {
+        $response = $next($request);
+        if(app()->environment('dev','local')){
+            return $response;
+        }
         $factory = new PsrHttpFactory(
             new ServerRequestFactory(),
             new StreamFactory(),
             new UploadedFileFactory(),
             new ResponseFactory()
         );
-        $response = $next($request);
         if ($request->hasHeader('X-Request-ID')) {
             $data['correlation_id'] = $request->header('X-Request-ID');
         } else {
