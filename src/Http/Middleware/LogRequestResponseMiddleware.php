@@ -21,7 +21,7 @@ class LogRequestResponseMiddleware
     public function handle(Request $request, Closure $next)
     {
         $response = $next($request);
-        if(app()->environment('dev','local')){
+        if(!app()->environment('dev','local')){
             return $response;
         }
         $factory = new PsrHttpFactory(
