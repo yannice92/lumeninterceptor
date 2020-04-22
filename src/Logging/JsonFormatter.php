@@ -17,7 +17,8 @@ class JsonFormatter extends \Monolog\Formatter\JsonFormatter
     public function format(array $record): string
     {
         $normalized = $this->normalize($record);
-        $normalized['datetime'] = $normalized['datetime']->setTimezone(new \DateTimeZone('Asia/Jakarta'))->format(\DateTime::RFC3339);
+        $normalized['log_date'] = $normalized['datetime']->setTimezone(new \DateTimeZone('Asia/Jakarta'))->format(\DateTime::RFC3339_EXTENDED);
+        unset($normalized['datetime']);//remove because efk error on EFK
         if (isset($normalized['context']) && $normalized['context'] === []) {
             $normalized['context'] = new \stdClass;
         }
