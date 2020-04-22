@@ -17,7 +17,7 @@ class JsonFormatter extends \Monolog\Formatter\JsonFormatter
     public function format(array $record): string
     {
         $normalized = $this->normalize($record);
-        $normalized['datetime'] = $normalized['datetime']->setTimezone(new \DateTimeZone('UTC'))->format(\DateTime::ISO8601);
+        $normalized['datetime'] = $normalized['datetime']->setTimezone(new \DateTimeZone('Asia/Jakarta'))->format(\DateTime::RFC3339);
         if (isset($normalized['context']) && $normalized['context'] === []) {
             $normalized['context'] = new \stdClass;
         }
