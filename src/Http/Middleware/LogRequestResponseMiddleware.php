@@ -18,6 +18,8 @@ use Lcobucci\JWT\Parser;
 
 class LogRequestResponseMiddleware
 {
+    private $customerId;
+
     public function handle(Request $request, Closure $next)
     {
         $response = $next($request);
@@ -72,7 +74,7 @@ class LogRequestResponseMiddleware
                     $parserJwt = new Parser();
                     try {
                         $jwtDecode = $parserJwt->parse($token[1]);
-                        $data['customer_id'] = $jwtDecode->getClaim('sub');
+                        $this->setCustomerId($jwtDecode->getClaim('sub'));
                     } catch (\Exception $e) {
                     }
                 }
@@ -80,8 +82,25 @@ class LogRequestResponseMiddleware
                 $headers[$name] = implode(', ', $values);
             }
         }
+        $data['customer_id'] = $this->getCustomerId();
         $data['headers'] = json_encode($headers);
         $data['data'] = preg_replace("/\r|\n|\t/", "", $message->getBody());
         return $data;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getCustomerId()
+    {
+        return $this->customerId;
+    }
+
+    /**
+     * @param mixed $customerId
+     */
+    public function setCustomerId($customerId): void
+    {
+        $this->customerId = $customerId;
     }
 }
