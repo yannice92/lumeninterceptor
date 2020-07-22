@@ -18,27 +18,32 @@ use Lcobucci\JWT\Parser;
 
 class LogRequestResponseMiddleware
 {
-    private $customerId;
+    private $url = '';
 
     public function handle(Request $request, Closure $next)
     {
-        $response = $next($request);
         $factory = new PsrHttpFactory(
             new ServerRequestFactory(),
             new StreamFactory(),
             new UploadedFileFactory(),
             new ResponseFactory()
         );
+        $response = $next($request);
         if ($request->hasHeader('X-Request-ID')) {
             $data['correlation_id'] = $request->header('X-Request-ID');
         } else {
             $data['correlation_id'] = Uuid::uuid();
         }
         $response->header('X-Request-ID', $data['correlation_id']);
+        $time_start = microtime(true);
         $psrServerRequest = $factory->createRequest($request);
         $psrServerResponse = $factory->createResponse($response);
+
         $data['request'] = $this->str($psrServerRequest, $data['correlation_id']);
         $data['response'] = $this->str($psrServerResponse, $data['correlation_id']);
+        $time_end = microtime(true);
+        //var_dump($_SERVER["REQUEST_TIME_FLOAT"]);
+        $data['response']['response_time'] = ($time_end - $_SERVER["REQUEST_TIME_FLOAT"]) * 1000;
         Log::info('', $data['request']);
         Log::info('', $data['response']);
         return $response;
@@ -55,11 +60,13 @@ class LogRequestResponseMiddleware
             $data['type'] = 'request';
             $data['method'] = $message->getMethod();
             $data['url'] = $message->getRequestTarget();
+            $this->url = $data['url'];
             if (!$message->hasHeader('host')) {
                 $data['host'] = $message->getUri()->getHost();
             }
         } elseif ($message instanceof ResponseInterface) {
             $data['type'] = 'response';
+            $data['url'] = $this->url;
             $data['status'] = $message->getStatusCode();
             $data['message'] = $message->getReasonPhrase();
         } else {
@@ -74,7 +81,7 @@ class LogRequestResponseMiddleware
                     $parserJwt = new Parser();
                     try {
                         $jwtDecode = $parserJwt->parse($token[1]);
-                        $this->setCustomerId($jwtDecode->getClaim('sub'));
+                        $data['customer_id'] = $jwtDecode->getClaim('sub');
                     } catch (\Exception $e) {
                     }
                 }
@@ -82,25 +89,8 @@ class LogRequestResponseMiddleware
                 $headers[$name] = implode(', ', $values);
             }
         }
-        $data['customer_id'] = $this->getCustomerId();
         $data['headers'] = json_encode($headers);
         $data['data'] = preg_replace("/\r|\n|\t/", "", $message->getBody());
         return $data;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getCustomerId()
-    {
-        return $this->customerId;
-    }
-
-    /**
-     * @param mixed $customerId
-     */
-    public function setCustomerId($customerId): void
-    {
-        $this->customerId = $customerId;
     }
 }
