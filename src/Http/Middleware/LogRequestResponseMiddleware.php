@@ -35,14 +35,12 @@ class LogRequestResponseMiddleware
             $data['correlation_id'] = Uuid::uuid();
         }
         $response->header('X-Request-ID', $data['correlation_id']);
-        $time_start = microtime(true);
         $psrServerRequest = $factory->createRequest($request);
         $psrServerResponse = $factory->createResponse($response);
 
         $data['request'] = $this->str($psrServerRequest, $data['correlation_id']);
         $data['response'] = $this->str($psrServerResponse, $data['correlation_id']);
         $time_end = microtime(true);
-        //var_dump($_SERVER["REQUEST_TIME_FLOAT"]);
         $data['response']['response_time'] = ($time_end - $_SERVER["REQUEST_TIME_FLOAT"]) * 1000;
         Log::info('', $data['request']);
         Log::info('', $data['response']);
