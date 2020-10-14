@@ -10,6 +10,9 @@ Use [Composer] to install the package:
 ```
 $ composer require yannice92/lumeninterceptor
 ```
+Note
+-----------
+Make sure if you using php-fpm, add `log_limit = 100000` on your php-fpm pool, to prevent multiline output on stdout
 
 Usage
 -----------

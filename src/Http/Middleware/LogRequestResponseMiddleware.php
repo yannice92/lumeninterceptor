@@ -20,6 +20,9 @@ class LogRequestResponseMiddleware
 {
     private $url = '';
     private $customerId;
+    private $status;
+    private $message;
+    private $method;
 
     public function handle(Request $request, Closure $next)
     {
@@ -42,9 +45,13 @@ class LogRequestResponseMiddleware
         $data['request'] = $this->str($psrServerRequest, $data['correlation_id']);
         $data['response'] = $this->str($psrServerResponse, $data['correlation_id']);
         $time_end = microtime(true);
-        $data['response']['response_time'] = ($time_end - $_SERVER["REQUEST_TIME_FLOAT"]) * 1000;
-        Log::info('', $data['request']);
-        Log::info('', $data['response']);
+        $data['method'] = $this->method;
+        $data['url'] = $this->url;
+        $data['customer_id'] = $this->getCustomerId();
+        $data['status'] = $this->status;
+        $data['message'] = $this->message;
+        $data['response_time'] = ($time_end - $_SERVER["REQUEST_TIME_FLOAT"]) * 1000;
+        Log::info('', $data);
         return $response;
     }
 
@@ -54,20 +61,20 @@ class LogRequestResponseMiddleware
      */
     private function str(MessageInterface $message, $logId)
     {
-        $data['correlation_id'] = $logId;
+        //$data['correlation_id'] = $logId;
         if ($message instanceof RequestInterface) {
-            $data['type'] = 'request';
-            $data['method'] = $message->getMethod();
-            $data['url'] = $message->getRequestTarget();
-            $this->url = $data['url'];
+            //$data['type'] = 'request';
+            $this->method = $message->getMethod();
+            //$data['url'] =
+            $this->url = $message->getRequestTarget();
             if (!$message->hasHeader('host')) {
                 $data['host'] = $message->getUri()->getHost();
             }
         } elseif ($message instanceof ResponseInterface) {
-            $data['type'] = 'response';
-            $data['url'] = $this->url;
-            $data['status'] = $message->getStatusCode();
-            $data['message'] = $message->getReasonPhrase();
+            //$data['type'] = 'response';
+            //$data['url'] = $this->url;
+            $this->status = $message->getStatusCode();
+            $this->message = $message->getReasonPhrase();
         } else {
             throw new \InvalidArgumentException('Unknown message type');
         }
@@ -88,7 +95,7 @@ class LogRequestResponseMiddleware
                 $headers[$name] = implode(', ', $values);
             }
         }
-        $data['customer_id'] = $this->getCustomerId();
+        //$data['customer_id'] = $this->getCustomerId();
         $data['headers'] = json_encode($headers);
         $data['data'] = preg_replace("/\r|\n|\t/", "", $message->getBody());
         return $data;
