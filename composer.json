@@ -1,5 +1,5 @@
 {
-    "name": "yannice92/lumeninterceptor",
+    "name": "samuelerwardi/lumeninterceptor",
     "description": "This library for write log using intercept request and response middleware",
     "type": "library",
     "require": {
