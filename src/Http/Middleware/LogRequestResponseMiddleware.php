@@ -33,12 +33,12 @@ class LogRequestResponseMiddleware
             new UploadedFileFactory(),
             new ResponseFactory()
         );
-        if ($request->hasHeader('X-Request-ID')) {
-            $data['correlation_id'] = $request->header('X-Request-ID');
+        if ($request->hasHeader('x-request-id')) {
+            $data['correlation_id'] = $request->header('x-request-id');
         } else {
             $data['correlation_id'] = Uuid::uuid();
         }
-        $response->header('X-Request-ID', $data['correlation_id']);
+        $response->header('x-request-id', $data['correlation_id']);
         $psrServerRequest = $factory->createRequest($request);
         $psrServerResponse = $factory->createResponse($response);
 
